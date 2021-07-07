@@ -1,10 +1,10 @@
 <template>
   <div id="wrapper">
-    <h2>Electron Portfolio</h2>
+    <h2 id="mainHeader">Electron Portfolio</h2>
     <main>
-      <div class="left-side">
-        <div>
-          <div class="title">Mpere Annor</div>
+      <div class="top-side">
+        <div id="prices">
+          <div id="fullname" class="title">Mpere Annor</div>
           <div ref="qrcodename"></div>
           <div class="items">
             <div class="item">
@@ -27,42 +27,57 @@
             </div>
           </div>
         </div>
-      </div>
-
-      <div class="right-side">
-        <div class="doc">
+         <div class="doc">
           <div class="title">Live Twitter Feeds</div>
+          <div class="feed">
           <div class="item">
-            <div class="name">Ethereum</div>
             <timeline
               id="ethereum"
               sourceType="profile"
-              :options="{ tweetLimit: '3' }"
+              :options="{ tweetLimit: '1' }"
             ></timeline>
           </div>
           <div class="item">
-            <div class="name">BBC Africa</div>
             <timeline
               id="BBCAfrica"
               sourceType="profile"
-              :options="{ tweetLimit: '3' }"
+              :options="{ tweetLimit: '1' }"
             ></timeline>
           </div>
-          <button
-            @click="
-              open('https://simulatedgreg.gitbooks.io/electron-vue/content/')
-            "
-          >
-            Read the Docs</button
-          ><br /><br />
-        </div>
-        <div class="doc">
-          <button id="takeScreenshot" class="alt" @click="takeScreenshot()">
-            Take Screenshot
-          </button>
+          </div>
         </div>
       </div>
+
+      <div class="right-side">
+       
+      </div>
+
     </main>
+      <div>
+        <h3>Let's Keep in touch</h3>
+        <ul>
+          <li
+            @click="open('https://github.com/mpereannor')"
+          >
+            <p>Github</p>
+          </li>
+          <li
+            @click="open('https://www.linkedin.com/in/mpereannor/')"
+          >
+            <p>LinkedIn</p>
+          </li>
+          <li
+            @click="open('mailto:mpereannor@gmail.com')"
+          >
+            <p>Email</p>
+          </li>
+          <li
+            @click="open('https://drive.google.com/file/d/1Oi6Jjog2MGvCf5TOryp_D8cfa0miA0I-/view?usp=sharing')"
+          >
+            <p>Resume</p>
+          </li>
+        </ul>
+      </div>
   </div>
 </template>
 
@@ -70,49 +85,51 @@
 const axios = require("axios");
 import * as QRCode from "easyqrcodejs";
 import { Timeline } from "vue-tweet-embed";
-const { dialog, app, BrowserWindow } = require("electron");
-const path = require("path");
-const fs = require("fs");
 
-let win = BrowserWindow.getFocusedWindow();
+const axiosWithKey = axios.create({ 
+        headers: { "x-messari-api-key": "3f8e7226-a33e-4208-a131-2224b858b119" },
 
+})
 export default {
   name: "landing-page",
   data() {
     return {
-      tezPrice: "Current Tezos price loading...",
+      tezPrice: "",
       tezSymbol: "XTZ",
-      tezLogo: "Tezos Logo",
-      burstPrice: "Current Burst price loading...",
+      tezLogo: "",
+      burstPrice: "",
       burstSymbol: "BURST",
-      burstLogo: "Burst Logo",
-      cardanoPrice: "Current Cardano price loading...",
+      burstLogo: "",
+      cardanoPrice: "",
       cardanoSymbol: "ADA",
-      cardanoLogo: "Cardano Logo",
+      cardanoLogo: "",
     };
   },
 
   mounted() {
     var options = {
       text: this.tezPrice,
-      width: 8,
-      height: 8,
+      width: 10,
+      height: 10,
+      logo: this.tezLogo
     };
 
     new QRCode(this.$refs.qrcode, options);
 
     var options1 = {
       text: this.burstPrice,
-      width: 8,
-      height: 8,
+      width: 10,
+      height: 10,
+      logo: this.burstLogo
     };
 
     new QRCode(this.$refs.qrcode1, options1);
 
     var options2 = {
       text: this.cardanoPrice,
-      width: 8,
-      height: 8,
+      width: 10,
+      height: 10,
+      logo: this.cardanoLogo
     };
     new QRCode(this.$refs.qrcode2, options2);
 
@@ -127,34 +144,31 @@ export default {
   created() {
     axios
       .all([
-        axios.get("https://data.messari.io/api/v1/assets/xtz/metrics"),
-        axios.get("https://data.messari.io/api/v1/assets/burst/metrics"),
-        axios.get("https://data.messari.io/api/v1/assets/ada/metrics"),
-        axios.get(
-          "https://data.messari.io/api/v2/assets/ztz/profile?fields=id,profile/general/background/logo"
+        axiosWithKey.get("https://data.messari.io/api/v1/assets/xtz/metrics"),
+        axiosWithKey.get("https://data.messari.io/api/v1/assets/burst/metrics"),
+        axiosWithKey.get("https://data.messari.io/api/v1/assets/ada/metrics"),
+        axiosWithKey.get(
+          "https://data.messari.io/api/v2/assets/xtz/profile"
         ),
-        axios.get(
-          "https://data.messari.io/api/v2/assets/burst/profile?fields=id,profile/general/background/logo"
+        axiosWithKey.get(
+          "https://data.messari.io/api/v2/assets/burst/profile"
         ),
-        axios.get(
-          "https://data.messari.io/api/v2/assets/ada/profile?fields=id,profile/general/background/logo"
+        axiosWithKey.get(
+          "https://data.messari.io/api/v2/assets/ada/profile"
         ),
       ])
       .then(
         axios.spread((res1, res2, res3, res4, res5, res6) => {
-          console.log("newton", res4, res5, res6);
+          console.log("newton", res1, res2, res3, res4, res5, res6);
           this.tezPrice =
-            Math.round(res1.data.data.market_data.price_usd * 100) / 100;
-          this.tezSymbol = res1.data.data.symbol;
-          this.tezLogo = res4;
+            (Math.round(res1.data.data.market_data.price_usd * 100) / 100).toString();
+          this.tezLogo = res4.data.data.profile.general.background.issuing_organizations['0'].logo;
           this.burstPrice =
-            Math.round(res2.data.data.market_data.price_usd * 100) / 100;
-          this.burstSymbol = res2.data.data.symbol;
-          this.burstLogo = res5;
+            (Math.round(res2.data.data.market_data.price_usd * 100) / 100).toString();
+          this.burstLogo = res5.data.data.profile.general.background.issuing_organizations['0'].logo;
           this.cardanoPrice =
-            Math.round(res3.data.data.market_data.price_usd * 100) / 100;
-          this.cardanoSymbol = res3.data.data.symbol;
-          this.cardanoLogo = res6;
+            (Math.round(res3.data.data.market_data.price_usd * 100) / 100).toString();
+          this.cardanoLogo = res6.data.data.profile.general.background.issuing_organizations['0'].logo;
         })
       )
       .catch((error) => {
@@ -168,51 +182,7 @@ export default {
     open(link) {
       this.$electron.shell.openExternal(link);
     },
-    takeScreenshot() {
-      win.webContents
-        .capturePage({
-          x: 0,
-          y: 0,
-          width: 800,
-          height: 600,
-        })
-        .then((img) => {
-          dialog
-            .showSaveDialog({
-              title: "Select the File Path to save",
-              defaultPath: path.join(__dirname, "../assets/image.png"),
-              buttonLabel: "Save",
-              filters: [
-                {
-                  name: "Image Files",
-                  extensions: ["png", "jpeg", "jpg"],
-                },
-              ],
-              properties: [],
-            })
-            .then((file) => {
-              console.log(file.canceled);
-              if (!file.canceled) {
-                console.log(file.filePath.toString());
-                fs.writeFile(
-                  file.filePath.toString(),
-                  img.toPNG(),
-                  "base64",
-                  function (err) {
-                    if (err) throw err;
-                    console.log("Saved!");
-                  }
-                );
-              }
-            })
-            .catch((err) => {
-              console.log(err);
-            });
-        })
-        .catch((err) => {
-          console.log(err);
-        });
-    },
+
     btnClick() {},
   },
 };
@@ -237,29 +207,31 @@ body {
     rgba(255, 255, 255, 1) 40%,
     rgba(229, 229, 229, 0.9) 100%
   );
-  height: 100vh;
-  padding: 60px 80px;
-  width: 100vw;
+  max-height: 100vh;
+  padding: 15px 20px;
+  max-width: 100vw;
 }
 
-#logo {
-  height: auto;
-  margin-bottom: 20px;
-  width: 420px;
+#mainHeader { 
+  text-align: center;
 }
-
 main {
   display: flex;
-  justify-content: space-between;
+  justify-content: space-evenly;
+  flex-direction: column;
+  max-height: 80vh;
 }
 
 main > div {
   flex-basis: 50%;
 }
 
-.left-side {
+#prices { 
+  width: 50%;
+}
+
+.top-side { 
   display: flex;
-  flex-direction: column;
 }
 
 .welcome {
@@ -278,6 +250,14 @@ main > div {
 .title.alt {
   font-size: 18px;
   margin-bottom: 10px;
+}
+.feed { 
+  display: flex;
+  max-height: 100%;
+}
+
+.doc { 
+  width: 50%;
 }
 
 .doc p {
@@ -329,5 +309,19 @@ main > div {
 .item .value {
   color: #35495e;
   font-weight: bold;
+}
+
+ul { 
+  list-style-type: none;
+}
+
+ul:hover { 
+  text-decoration: none;
+  color: #4fc08d;
+  cursor: pointer;
+}
+
+ul>li{ 
+  display: inline-block;
 }
 </style>
