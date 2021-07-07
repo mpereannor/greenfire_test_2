@@ -1,11 +1,11 @@
 <template>
   <div id="wrapper">
-    <img id="logo" src="~@/assets/logo.png" alt="electron-vue" />
+    <h2>Electron Portfolio</h2>
     <main>
       <div class="left-side">
         <div>
           <div class="title">Mpere Annor</div>
-              <div ref="qrcodename"></div>
+          <div ref="qrcodename"></div>
           <div class="items">
             <div class="item">
               <div class="name">Live Crypto Prices:</div>
@@ -31,12 +31,23 @@
 
       <div class="right-side">
         <div class="doc">
-          <div class="title">Getting Started</div>
-          <p>
-            electron-vue comes packed with detailed documentation that covers
-            everything from internal configurations, using the project
-            structure, building your application, and so much more.
-          </p>
+          <div class="title">Live Twitter Feeds</div>
+          <div class="item">
+            <div class="name">Ethereum</div>
+            <timeline
+              id="ethereum"
+              sourceType="profile"
+              :options="{ tweetLimit: '3' }"
+            ></timeline>
+          </div>
+          <div class="item">
+            <div class="name">BBC Africa</div>
+            <timeline
+              id="BBCAfrica"
+              sourceType="profile"
+              :options="{ tweetLimit: '3' }"
+            ></timeline>
+          </div>
           <button
             @click="
               open('https://simulatedgreg.gitbooks.io/electron-vue/content/')
@@ -46,12 +57,8 @@
           ><br /><br />
         </div>
         <div class="doc">
-          <div class="title alt">Other Documentation</div>
-          <button class="alt" @click="open('https://electron.atom.io/docs/')">
-            Electron
-          </button>
-          <button class="alt" @click="open('https://vuejs.org/v2/guide/')">
-            Vue.js
+          <button id="takeScreenshot" class="alt" @click="takeScreenshot()">
+            Take Screenshot
           </button>
         </div>
       </div>
@@ -61,10 +68,13 @@
 
 <script>
 const axios = require("axios");
-// const QrcodeVue = require('qrcode.vue')
-// import QrcodeVue from 'qrcode.vue'
-// import QrCode from './QrCode.vue';
 import * as QRCode from "easyqrcodejs";
+import { Timeline } from "vue-tweet-embed";
+const { dialog, app, BrowserWindow } = require("electron");
+const path = require("path");
+const fs = require("fs");
+
+let win = BrowserWindow.getFocusedWindow();
 
 export default {
   name: "landing-page",
@@ -72,10 +82,13 @@ export default {
     return {
       tezPrice: "Current Tezos price loading...",
       tezSymbol: "XTZ",
+      tezLogo: "Tezos Logo",
       burstPrice: "Current Burst price loading...",
       burstSymbol: "BURST",
+      burstLogo: "Burst Logo",
       cardanoPrice: "Current Cardano price loading...",
       cardanoSymbol: "ADA",
+      cardanoLogo: "Cardano Logo",
     };
   },
 
@@ -84,36 +97,32 @@ export default {
       text: this.tezPrice,
       width: 8,
       height: 8,
-      }
+    };
 
     new QRCode(this.$refs.qrcode, options);
 
-    var options1 = { 
+    var options1 = {
       text: this.burstPrice,
       width: 8,
-      height: 8
-
-logo: }
+      height: 8,
+    };
 
     new QRCode(this.$refs.qrcode1, options1);
 
-    var options2 = { 
+    var options2 = {
       text: this.cardanoPrice,
       width: 8,
-      height: 8
+      height: 8,
+    };
+    new QRCode(this.$refs.qrcode2, options2);
 
-logo: }
-    new QRCode(this.$refs.qrcode2, options2)
-
-  var options3 = { 
-      text: 'Mpere Annor',
+    var options3 = {
+      text: "Mpere Annor",
       width: 8,
-      height: 8
-    }
-  
-  new QRCode(this.$refs.qrcodename, options3)
-  
-  
+      height: 8,
+    };
+
+    new QRCode(this.$refs.qrcodename, options3);
   },
   created() {
     axios
@@ -121,28 +130,88 @@ logo: }
         axios.get("https://data.messari.io/api/v1/assets/xtz/metrics"),
         axios.get("https://data.messari.io/api/v1/assets/burst/metrics"),
         axios.get("https://data.messari.io/api/v1/assets/ada/metrics"),
+        axios.get(
+          "https://data.messari.io/api/v2/assets/ztz/profile?fields=id,profile/general/background/logo"
+        ),
+        axios.get(
+          "https://data.messari.io/api/v2/assets/burst/profile?fields=id,profile/general/background/logo"
+        ),
+        axios.get(
+          "https://data.messari.io/api/v2/assets/ada/profile?fields=id,profile/general/background/logo"
+        ),
       ])
       .then(
-        axios.spread((res1, res2, res3) => {
-          console.log("newton", res1, res2, res3);
+        axios.spread((res1, res2, res3, res4, res5, res6) => {
+          console.log("newton", res4, res5, res6);
           this.tezPrice =
             Math.round(res1.data.data.market_data.price_usd * 100) / 100;
           this.tezSymbol = res1.data.data.symbol;
+          this.tezLogo = res4;
           this.burstPrice =
             Math.round(res2.data.data.market_data.price_usd * 100) / 100;
           this.burstSymbol = res2.data.data.symbol;
+          this.burstLogo = res5;
           this.cardanoPrice =
             Math.round(res3.data.data.market_data.price_usd * 100) / 100;
           this.cardanoSymbol = res3.data.data.symbol;
+          this.cardanoLogo = res6;
         })
       )
       .catch((error) => {
         console.log(error);
       });
   },
+  components: {
+    timeline: Timeline,
+  },
   methods: {
     open(link) {
       this.$electron.shell.openExternal(link);
+    },
+    takeScreenshot() {
+      win.webContents
+        .capturePage({
+          x: 0,
+          y: 0,
+          width: 800,
+          height: 600,
+        })
+        .then((img) => {
+          dialog
+            .showSaveDialog({
+              title: "Select the File Path to save",
+              defaultPath: path.join(__dirname, "../assets/image.png"),
+              buttonLabel: "Save",
+              filters: [
+                {
+                  name: "Image Files",
+                  extensions: ["png", "jpeg", "jpg"],
+                },
+              ],
+              properties: [],
+            })
+            .then((file) => {
+              console.log(file.canceled);
+              if (!file.canceled) {
+                console.log(file.filePath.toString());
+                fs.writeFile(
+                  file.filePath.toString(),
+                  img.toPNG(),
+                  "base64",
+                  function (err) {
+                    if (err) throw err;
+                    console.log("Saved!");
+                  }
+                );
+              }
+            })
+            .catch((err) => {
+              console.log(err);
+            });
+        })
+        .catch((err) => {
+          console.log(err);
+        });
     },
     btnClick() {},
   },
