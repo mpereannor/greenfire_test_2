@@ -5,22 +5,25 @@
       <div class="left-side">
         <div>
           <div class="title">Mpere Annor</div>
+              <div ref="qrcodename"></div>
           <div class="items">
             <div class="item">
-              <div class="name"> Live Crypto Prices:</div>
+              <div class="name">Live Crypto Prices:</div>
             </div>
             <div class="item">
               <div class="name">Tezos:</div>
-              <div class="value">  {{ tezPrice }} {{ tezSymbol }}</div>
-              <qr-code></qr-code>
+              <div class="value">{{ tezPrice }} {{ tezSymbol }}</div>
+              <div ref="qrcode"></div>
             </div>
             <div class="item">
               <div class="name">Burst:</div>
               <div class="value">{{ burstPrice }} {{ burstSymbol }}</div>
+              <div ref="qrcode1"></div>
             </div>
             <div class="item">
               <div class="name">Cardano:</div>
-              <div class="value"> {{ cardanoPrice }} {{ cardanoSymbol }} </div>
+              <div class="value">{{ cardanoPrice }} {{ cardanoSymbol }}</div>
+              <div ref="qrcode2"></div>
             </div>
           </div>
         </div>
@@ -57,62 +60,97 @@
 </template>
 
 <script>
-const axios = require('axios')
+const axios = require("axios");
 // const QrcodeVue = require('qrcode.vue')
 // import QrcodeVue from 'qrcode.vue'
-import QrCode from './QrCode.vue';
+// import QrCode from './QrCode.vue';
+import * as QRCode from "easyqrcodejs";
 
 export default {
-  name: 'landing-page',
-  data () {
+  name: "landing-page",
+  data() {
     return {
-      tezPrice: 'Current Tezos price loading...',
-      tezSymbol: 'XTZ',
-      burstPrice: 'Current Burst price loading...',
-      burstSymbol: 'BURST',
-      cardanoPrice: 'Current Cardano price loading...',
-      cardanoSymbol: 'ADA',
-    }
+      tezPrice: "Current Tezos price loading...",
+      tezSymbol: "XTZ",
+      burstPrice: "Current Burst price loading...",
+      burstSymbol: "BURST",
+      cardanoPrice: "Current Cardano price loading...",
+      cardanoSymbol: "ADA",
+    };
   },
-  components: { 
-    QrCode
-  },
-  created() { 
-    axios.all([
-      axios
-      .get('https://data.messari.io/api/v1/assets/xtz/metrics'),
-      axios
-      .get('https://data.messari.io/api/v1/assets/burst/metrics'),
-      axios
-      .get('https://data.messari.io/api/v1/assets/ada/metrics'),
-    ])
-    .then(
-      axios.spread((res1, res2, res3) => { 
-        console.log('newton', res1, res2, res3);
-        this.tezPrice = Math.round(res1.data.data.market_data.price_usd * 100) / 100;
-        this.tezSymbol = res1.data.data.symbol;
-        this.burstPrice = Math.round(res2.data.data.market_data.price_usd * 100) / 100;
-        this.burstSymbol = res2.data.data.symbol;
-        this.cardanoPrice = Math.round(res3.data.data.market_data.price_usd * 100) / 100;
-        this.cardanoSymbol = res3.data.data.symbol
-      })
-    )
-    .catch( (error) => { 
-      console.log(error)
-    })
-  }
-  ,
-  components: { QrCode },
-  methods: {
-    open(link){
-      this.$electron.shell.openExternal(link)
+
+  mounted() {
+    var options = {
+      text: this.tezPrice,
+      width: 8,
+      height: 8,
       }
-  }
-}
+
+    new QRCode(this.$refs.qrcode, options);
+
+    var options1 = { 
+      text: this.burstPrice,
+      width: 8,
+      height: 8
+
+logo: }
+
+    new QRCode(this.$refs.qrcode1, options1);
+
+    var options2 = { 
+      text: this.cardanoPrice,
+      width: 8,
+      height: 8
+
+logo: }
+    new QRCode(this.$refs.qrcode2, options2)
+
+  var options3 = { 
+      text: 'Mpere Annor',
+      width: 8,
+      height: 8
+    }
+  
+  new QRCode(this.$refs.qrcodename, options3)
+  
+  
+  },
+  created() {
+    axios
+      .all([
+        axios.get("https://data.messari.io/api/v1/assets/xtz/metrics"),
+        axios.get("https://data.messari.io/api/v1/assets/burst/metrics"),
+        axios.get("https://data.messari.io/api/v1/assets/ada/metrics"),
+      ])
+      .then(
+        axios.spread((res1, res2, res3) => {
+          console.log("newton", res1, res2, res3);
+          this.tezPrice =
+            Math.round(res1.data.data.market_data.price_usd * 100) / 100;
+          this.tezSymbol = res1.data.data.symbol;
+          this.burstPrice =
+            Math.round(res2.data.data.market_data.price_usd * 100) / 100;
+          this.burstSymbol = res2.data.data.symbol;
+          this.cardanoPrice =
+            Math.round(res3.data.data.market_data.price_usd * 100) / 100;
+          this.cardanoSymbol = res3.data.data.symbol;
+        })
+      )
+      .catch((error) => {
+        console.log(error);
+      });
+  },
+  methods: {
+    open(link) {
+      this.$electron.shell.openExternal(link);
+    },
+    btnClick() {},
+  },
+};
 </script>
 
 <style>
-@import url('https://fonts.googleapis.com/css?family=Source+Sans+Pro');
+@import url("https://fonts.googleapis.com/css?family=Source+Sans+Pro");
 
 * {
   box-sizing: border-box;
