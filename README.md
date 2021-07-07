@@ -1,7 +1,12 @@
-# testproject
+# MpereAnnor.ElectronPortfolio
 
-> An electron-vue project
+> A 'Hello World' ElectronJS application using VueJS and NodeJS
 
+#### Operating System
+Windows 10 x64
+
+#### Node Version
+14.16
 #### Build Setup
 
 ``` bash
