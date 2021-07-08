@@ -53,15 +53,11 @@
     }
   },
   "dependencies": {
-    "@chenfengyuan/vue-qrcode": "^1.0.2",
     "axios": "^0.18.0",
     "easyqrcodejs": "^4.4.3",
-    "electron-screenshot": "^1.0.5",
-    "electron-vue-screen-capture": "0.0.10",
     "eslint": "^7.30.0",
     "eslint-friendly-formatter": "^4.0.1",
     "eslint-loader": "^4.0.2",
-    "qrcode.vue": "^3.2.2",
     "vue": "^2.5.16",
     "vue-electron": "^1.0.6",
     "vue-router": "^3.0.1",
